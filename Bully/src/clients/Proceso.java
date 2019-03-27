@@ -6,6 +6,7 @@ import java.util.Date;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriBuilder;
 
 import java.math.*;
@@ -28,6 +29,11 @@ public class Proceso extends Thread {
 		PARADO, CORRIENDO
 	}
 
+	Client client = ClientBuilder.newClient();
+	
+	URI uri = UriBuilder.fromUri("http://localhost:8080/Bully").build();
+	
+	WebTarget target = client.target(uri);
 	
 	public Proceso(int ID) {
 		this.ID = ID;
@@ -37,9 +43,7 @@ public class Proceso extends Thread {
 	
 	public void run()
 	{
-		Client client = ClientBuilder.newClient();
-		URI uri = UriBuilder.fromUri("http://localhost:8080/Bully").build();
-		WebTarget target = client.target(uri);
+		
 		
 		System.out.println();
 		if(this.estado == estado_proceso_t.PARADO) {
@@ -57,6 +61,7 @@ public class Proceso extends Thread {
 				last_check = date.getTime();
 				espera = (int) (Math.random() % 500) + 500;
 				//mandar peticion al servidor
+				System.out.println(target.path("rest").path("servicio").path("elegir").queryParam("id", this.ID).request(MediaType.TEXT_PLAIN).get(String.class));
 			}
 		}
 		
