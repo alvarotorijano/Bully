@@ -8,10 +8,12 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
 
+//singleton para que no se borren los atributos de la clase
 @Singleton
 @Path("servicio")
 public class Servicio {
 	
+	//numero de procesos totales 
 	private static int NUM_PROCESOS = 6;
 
 	@GET
