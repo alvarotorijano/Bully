@@ -11,12 +11,12 @@ import java.net.URI;
 
 public class Proceso extends Thread {
 
-	private int ID;       //ID del proceso
-	private int coordinador = -1;       //ID del coordinador
-	private estado_proceso_t estadoProceso;       //estado de la eleccion que será algun valor de la enumeracion
-	private estado_eleccion_t estadoEleccion;      //estado del proceso que será algun valor de la enumeracion
-	int espera = (int) (Math.random() % 500) + 500;      //timeout entre 0.5 y 1 para el metodo run()
-	private Object eleccion = new Object();      //objeto de sincronizacion del metodo eleccion()
+	private int ID;       								//ID del proceso
+	private int coordinador = -1;       				//ID del coordinador
+	private estado_proceso_t estadoProceso;       		//estado de la eleccion que sera algun valor de la enumeracion
+	private estado_eleccion_t estadoEleccion;      		//estado del proceso que sera algun valor de la enumeracion
+	int espera = (int) (Math.random() % 500) + 500;     //timeout entre 0.5 y 1 para el metodo run()
+	private Object eleccion = new Object();      		//objeto de sincronizacion del metodo eleccion()
 
 	private enum estado_eleccion_t {
 		ACUERDO, ELECCION_ACTIVA, ELECCION_PASIVA
@@ -33,7 +33,7 @@ public class Proceso extends Thread {
 	WebTarget target = client.target(uri);
 	
 	
-	//Constructor para la creación de la clase
+	//Constructor para la creacion de la clase
 	public Proceso(int ID) {
 		this.ID = ID;
 		this.estadoProceso = estado_proceso_t.CORRIENDO;
@@ -43,8 +43,9 @@ public class Proceso extends Thread {
 	public void run()
 	{
 		if(this.estadoProceso == estado_proceso_t.PARADO) {
-			synchronized(this.getClass()) {  //Si está parado paro la clase [forma de "matar" al proceso]
+			synchronized(this.getClass()) {  //Si esta parado paro la clase [forma de "matar" al proceso] ///Esto no lo entiendo bien, se supone que ahi dentro tiene que haber un mutex
 				try {
+					System.out.println("Soy el proceso: " + this.ID + " y estoy PARADO");
 					this.getClass().wait();
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
@@ -55,6 +56,7 @@ public class Proceso extends Thread {
 		else {
 				synchronized(this.getClass()) {
 					try {
+						System.out.println("Soy el proceso: " + this.ID + " y estoy CORRIENDO");
 						this.getClass().wait(espera); //espera aleatoria
 					} catch (InterruptedException e) {
 						// TODO Auto-generated catch block

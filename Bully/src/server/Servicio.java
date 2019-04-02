@@ -20,12 +20,12 @@ public class Servicio {
 	@Produces(MediaType.TEXT_PLAIN)
 	@Path("elegir")
 	public String elegir(@QueryParam(value = "id")int id) {
-		
+		System.out.println("esta es la prueba del metodo elegir");
 		for(int i = id+1; i<= NUM_PROCESOS; i++) {
 			//mirar donde esta cada proceso y enviar mensaje eleccion
 		}
 		
-		return "Elección enviada";
+		return "Eleccion enviada";
 		
 	}
 }
