@@ -11,12 +11,13 @@ import java.net.URI;
 
 public class Proceso extends Thread {
 
-	private int ID;       //ID del proceso
+	public int ID;       //ID del proceso
 	private int coordinador = -1;       //ID del coordinador
 	private estado_proceso_t estadoProceso;       //estado de la eleccion que será algun valor de la enumeracion
 	private estado_eleccion_t estadoEleccion;      //estado del proceso que será algun valor de la enumeracion
 	int espera = (int) (Math.random() % 500) + 500;      //timeout entre 0.5 y 1 para el metodo run()
 	private Object eleccion = new Object();      //objeto de sincronizacion del metodo eleccion()
+	private int valor;
 
 	private enum estado_eleccion_t {
 		ACUERDO, ELECCION_ACTIVA, ELECCION_PASIVA
@@ -64,7 +65,9 @@ public class Proceso extends Thread {
 				
 				espera = (int) (Math.random() % 500) + 500; //actualizo el valor aleatorio de la espera
 				//mandar peticion al servidor
-				eleccion();
+				if(this.valor<0)
+					eleccion();
+				
 			}
 		
 	}
@@ -112,6 +115,48 @@ public class Proceso extends Thread {
 	}
 
 	public void coordinador(int idCoordinador) {
-		
+		if(this.ID == idCoordinador) {
+			//Enviar mensaje coordinador a los demas procesos
+		}
+		else {
+			this.coordinador = idCoordinador;
+		}
+	}
+	
+	public int computar() {
+		int valor;
+		if(this.estadoProceso == estado_proceso_t.PARADO)
+			valor = -1;
+		else {
+			try {
+				Thread.sleep(300);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			valor = 1;
+		}
+		return valor;
+	}
+	
+	public void parar() {
+		this.estadoProceso = estado_proceso_t.PARADO;
+		synchronized(this.getClass()) {
+			try {
+				this.getClass().wait();
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	public void arrancar() {
+		synchronized(this.getClass()) {
+			this.getClass().notify();
+		}
+		this.estadoProceso = estado_proceso_t.CORRIENDO;
+		eleccion();
 	}
 }
+
