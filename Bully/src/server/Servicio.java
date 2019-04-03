@@ -12,7 +12,7 @@ import javax.ws.rs.core.MediaType;
 @Singleton
 @Path("servicio")
 public class Servicio {
-	
+	//System.out.println("Este es el mensaje desde la clase");
 	//numero de procesos totales 
 	private static int NUM_PROCESOS = 6;
 
