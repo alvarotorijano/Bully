@@ -27,7 +27,7 @@ public class Servicio {
 	private static ArrayList<Proceso> procesos = new ArrayList<Proceso>();
 	private static ArrayList<Integer> idsLibres = new ArrayList<Integer>();
 	private static HashMap<Integer, String> ubicaciones = new HashMap<>();
-	//Este array nos servirá para saber que ids tienen que tener los procesos que nosotros crearemos, tambien quedará alineado con los procesos locales de la maquina, asi cuando tengamos nuestro array de procesos locales, asi no tendremos que encuestar a cada uno de los metodos hasta dar con el que tiene el id que queremos. Otra opcion es recorrer el array haciendo un proceso[i].getID
+	//Este array nos servirï¿½ para saber que ids tienen que tener los procesos que nosotros crearemos, tambien quedarï¿½ alineado con los procesos locales de la maquina, asi cuando tengamos nuestro array de procesos locales, asi no tendremos que encuestar a cada uno de los metodos hasta dar con el que tiene el id que queremos. Otra opcion es recorrer el array haciendo un proceso[i].getID
 	
 	//Metodo main para la creacion y arranque de los procesos, se pasan por argumentos los ids de los procesos
 	public static void main(String[] args) {
@@ -128,5 +128,33 @@ public class Servicio {
 		}
 		
 		return ("Proceso parado");
+	}
+
+	
+	@GET
+	@Produces(MediaType.TEXT_PLAIN)
+	@Path("computa")
+	public int computa(@QueryParam(value = "coordinador") int coordinador) {
+		int valor = 0;
+		
+		URI uri;
+		WebTarget target;
+		Client cliente = ClientBuilder.newClient();
+		
+		if (ubicaciones.get(coordinador) == null) {
+			for(int i=0; i<procesos.size(); i++) {
+				if (procesos.get(i).ID == coordinador) {
+					valor = procesos.get(i).computar();
+				}
+			}
+		} 
+		else {
+			uri = UriBuilder.fromUri("http://" + ubicaciones.get(coordinador) + ":8080/Bully").build();
+			target = cliente.target(uri);
+			valor = target.path("rest").path("servicio").path("computa").queryParam("coordinador", coordinador).request(MediaType.TEXT_PLAIN).get(int.class);
+		}
+		
+		return valor;
+
 	}
 }

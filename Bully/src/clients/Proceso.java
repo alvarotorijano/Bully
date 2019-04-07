@@ -64,6 +64,7 @@ public class Proceso extends Thread {
 				}
 				
 				espera = (int) (Math.random() % 500) + 500; //actualizo el valor aleatorio de la espera
+				this.valor = target.path("rest").path("servicio").path("computa").queryParam("coordinador", this.coordinador).request(MediaType.TEXT_PLAIN).get(int.class);
 				//mandar peticion al servidor
 				if(this.valor<0)
 					eleccion();
