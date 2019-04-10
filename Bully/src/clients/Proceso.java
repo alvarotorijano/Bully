@@ -100,12 +100,9 @@ public class Proceso extends Thread {
 					e.printStackTrace();
 				}
 			}
-			//Compruebo si el estado de la eleccion ha cambiado, es decir ha salido del wait por recibir un mensaje
-			if(this.estadoEleccion == estado_eleccion_t.ACUERDO) {
-//++++++++++++++++++++++++++++++++++cambio el this.coordinador con el valor de la funcion coordinador++++++++++++++++++++++++//
-			}
-			else {
-				eleccion(); //vuelvo a inicio
+			//Compruebo si el estado de la eleccion ha cambiado, es decir ha salido del wait por recibir un mensaje, si no vuelvo a realizar elecciones
+			if(this.estadoEleccion != estado_eleccion_t.ACUERDO) {
+				eleccion();
 			}
 		}
 		else {
@@ -117,9 +114,13 @@ public class Proceso extends Thread {
 
 	public void coordinador(int idCoordinador) {
 		if(this.ID == idCoordinador) {
-			//Enviar mensaje coordinador a los demas procesos
+			System.out.println(target.path("rest").path("servicio").path("coordinar").queryParam("coordinador", this.ID).request(MediaType.TEXT_PLAIN).get(String.class));
 		}
 		else {
+			synchronized(this.eleccion) {
+				this.eleccion = estado_eleccion_t.ACUERDO;
+				this.eleccion.notify();
+			}
 			this.coordinador = idCoordinador;
 		}
 	}

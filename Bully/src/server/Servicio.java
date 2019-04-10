@@ -71,9 +71,20 @@ public class Servicio {
 	@Path("elegir")
 	public String elegir(@QueryParam(value = "id")int id) {
 		
-		for(int i = id+1; i<= NUM_PROCESOS; i++) {
-			//mirar donde esta cada proceso y enviar mensaje eleccion
+		URI uri;
+		WebTarget target;
+		Client cliente = ClientBuilder.newClient();
+		for(int i = id +1; i< NUM_PROCESOS; i++) {
+			if (ubicaciones.get(i) == null) {
+				procesos.get(i).parar();
+			} 
+			else {
+				uri = UriBuilder.fromUri("http://" + ubicaciones.get(i) + ":8080/Bully").build();
+				target = cliente.target(uri);
+				System.out.println(target.path("rest").path("servicio").path("elegir").queryParam("id", id).request(MediaType.TEXT_PLAIN).get(String.class));
+			}
 		}
+		
 		
 		return "Eleccion enviada";
 		
@@ -83,9 +94,19 @@ public class Servicio {
 	@Produces(MediaType.TEXT_PLAIN)
 	@Path("coordinar")
 	public String coordinar(@QueryParam(value = "coordinador") int coordinador) {
+		URI uri;
+		WebTarget target;
+		Client cliente = ClientBuilder.newClient();
 		for(int i = 0; i< NUM_PROCESOS; i++) {
 			if(i!= coordinador) {
-				//Mandar mensaje coordinador al proceso i
+				if (ubicaciones.get(i) == null) {
+					procesos.get(i).coordinador(coordinador);;
+				} 
+				else {
+					uri = UriBuilder.fromUri("http://" + ubicaciones.get(i) + ":8080/Bully").build();
+					target = cliente.target(uri);
+					System.out.println(target.path("rest").path("servicio").path("coordinar").queryParam("coordinador", coordinador).request(MediaType.TEXT_PLAIN).get(String.class));
+				}
 			}
 		}
 		return "Has indicado que eres el nuevo coordinaddor";
@@ -96,10 +117,21 @@ public class Servicio {
 	@Path("arranca")
 	public String arranca(@QueryParam(value = "identificador") int identificador) {
 		
-		for(int i = 0; i< procesos.size(); i++) {
-			if (procesos.get(i).ID == identificador) {
-				procesos.get(i).arrancar();
+		URI uri;
+		WebTarget target;
+		Client cliente = ClientBuilder.newClient();
+		
+		if (ubicaciones.get(identificador) == null) {
+			for(int i=0; i<procesos.size(); i++) {
+				if (procesos.get(i).ID == identificador) {
+					procesos.get(i).arrancar();
+				}
 			}
+		} 
+		else {
+			uri = UriBuilder.fromUri("http://" + ubicaciones.get(identificador) + ":8080/Bully").build();
+			target = cliente.target(uri);
+			System.out.println(target.path("rest").path("servicio").path("arranca").request(MediaType.TEXT_PLAIN).get(String.class));
 		}
 		
 		return ("Proceso arrancado");
