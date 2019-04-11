@@ -76,7 +76,7 @@ public class Servicio {
 		Client cliente = ClientBuilder.newClient();
 		for(int i = id +1; i< NUM_PROCESOS; i++) {
 			if (ubicaciones.get(i) == null) {
-				procesos.get(i).parar();
+				 
 			} 
 			else {
 				uri = UriBuilder.fromUri("http://" + ubicaciones.get(i) + ":8080/Bully").build();
@@ -116,7 +116,6 @@ public class Servicio {
 	@Produces(MediaType.TEXT_PLAIN)
 	@Path("arranca")
 	public String arranca(@QueryParam(value = "identificador") int identificador) {
-		
 		URI uri;
 		WebTarget target;
 		Client cliente = ClientBuilder.newClient();
@@ -124,7 +123,7 @@ public class Servicio {
 		if (ubicaciones.get(identificador) == null) {
 			for(int i=0; i<procesos.size(); i++) {
 				if (procesos.get(i).ID == identificador) {
-					procesos.get(i).arrancar();
+					procesos.get(i).arrancar();;
 				}
 			}
 		} 
