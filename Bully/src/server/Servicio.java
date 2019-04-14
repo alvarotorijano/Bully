@@ -40,9 +40,9 @@ public class Servicio {
 			for(int i = 0; i< args.length;) {
 				/*
 				 * 6	192.168.1.2
-				 * 5	127.0.0.1
+				 * 5	227.0.0.1
 				 * 3	192.168.1.3
-				 * 4	127.0.0.1
+				 * 4	227.0.0.1
 				 * */
 				idsLibres.remove(args[i]);
 				ubicaciones.put(Integer.valueOf(args[i++]), args[i++]);
@@ -55,10 +55,16 @@ public class Servicio {
 		//Para eso hay que comprobar que ids tienen los demas y generar dos que no coincidan
 		for (int i = 0; i< idsLibres.size(); i++) {
 			procesos.add(new Proceso(idsLibres.get(i)));
+			ubicaciones.put(idsLibres.get(i), "127.0.0.1");
 		}
+		for(Proceso p : procesos) {
+			p.updateAddress(ubicaciones);
+		} // Esta hecho asi para intentar que todos los procesos se lancen a la vez -cutre way-
+		
 		for(Proceso p : procesos) {
 			p.start();
 		}
+		
 		//Ahora tenemos todos nuestros procesos funcionando
 		
 		/*Se me ocurre que para cada mensaje que un proceso envie, se la envie siempre
@@ -69,19 +75,22 @@ public class Servicio {
 	@GET
 	@Produces(MediaType.TEXT_PLAIN)
 	@Path("elegir")
-	public String elegir(@QueryParam(value = "id")int id) {
+	public String elegir(
+			@QueryParam(value = "id")int id, // Este es el destinatario
+			@QueryParam(value = "sender")int sender // este es el emisor
+			) {
 		
-		URI uri;
-		WebTarget target;
-		Client cliente = ClientBuilder.newClient();
-		for(int i = id +1; i< NUM_PROCESOS; i++) {
+		for(int i = sender +1; i< NUM_PROCESOS; i++) {
 			if (ubicaciones.get(i) == null) {
-				 
+				 //el proceso es local
+				//comprobamos su estado y reenviamos
+				
+				
 			} 
 			else {
-				uri = UriBuilder.fromUri("http://" + ubicaciones.get(i) + ":8080/Bully").build();
-				target = cliente.target(uri);
-				System.out.println(target.path("rest").path("servicio").path("elegir").queryParam("id", id).request(MediaType.TEXT_PLAIN).get(String.class));
+				//uri = UriBuilder.fromUri("http://" + ubicaciones.get(i) + ":8080/Bully").build();
+				//target = cliente.target(uri);
+				//System.out.println(target.path("rest").path("servicio").path("elegir").queryParam("id", id).request(MediaType.TEXT_PLAIN).get(String.class));
 			}
 		}
 		

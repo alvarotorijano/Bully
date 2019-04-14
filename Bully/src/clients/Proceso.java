@@ -8,6 +8,7 @@ import javax.ws.rs.core.UriBuilder;
 
 import java.math.*;
 import java.net.URI;
+import java.util.HashMap;
 
 public class Proceso extends Thread {
 
@@ -18,6 +19,7 @@ public class Proceso extends Thread {
 	int espera = (int) (Math.random() % 500) + 500;      //timeout entre 0.5 y 1 para el metodo run()
 	private Object eleccion = new Object();      //objeto de sincronizacion del metodo eleccion()
 	private int valor;
+	private static HashMap<Integer, String> ubicaciones = new HashMap<>();
 
 	private enum estado_eleccion_t {
 		ACUERDO, ELECCION_ACTIVA, ELECCION_PASIVA
@@ -243,6 +245,10 @@ public class Proceso extends Thread {
 		synchronized(this.eleccion) {
 			this.eleccion.notify();
 		}
+	}
+	
+	public void updateAddress(HashMap ubicaciones) {
+		this.ubicaciones = ubicaciones;
 	}
 }
 
