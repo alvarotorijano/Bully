@@ -79,21 +79,12 @@ public class Servicio {
 			@QueryParam(value = "id")int id, // Este es el destinatario
 			@QueryParam(value = "sender")int sender // este es el emisor
 			) {
-		
-		for(int i = sender +1; i< NUM_PROCESOS; i++) {
-			if (ubicaciones.get(i) == null) {
-				 //el proceso es local
-				//comprobamos su estado y reenviamos
-				
-				
-			} 
-			else {
-				//uri = UriBuilder.fromUri("http://" + ubicaciones.get(i) + ":8080/Bully").build();
-				//target = cliente.target(uri);
-				//System.out.println(target.path("rest").path("servicio").path("elegir").queryParam("id", id).request(MediaType.TEXT_PLAIN).get(String.class));
+			
+		for(int i=0; i<procesos.size(); i++) {
+			if (procesos.get(i).ID == id) {
+				procesos.get(i).confirmar(sender);
 			}
 		}
-		
 		
 		return "Eleccion enviada";
 		
@@ -101,21 +92,25 @@ public class Servicio {
 	
 	@GET
 	@Produces(MediaType.TEXT_PLAIN)
+	@Path("confirma")
+	public String confirma(
+			@QueryParam(value = "id")int id) {
+		for(int i=0; i<procesos.size(); i++) {
+			if (procesos.get(i).ID == id) {
+				procesos.get(i).Ok();
+			}
+		} 
+		return "Ok";
+	}
+	
+	@GET
+	@Produces(MediaType.TEXT_PLAIN)
 	@Path("coordinar")
 	public String coordinar(@QueryParam(value = "coordinador") int coordinador) {
-		URI uri;
-		WebTarget target;
-		Client cliente = ClientBuilder.newClient();
+
 		for(int i = 0; i< NUM_PROCESOS; i++) {
 			if(i!= coordinador) {
-				if (ubicaciones.get(i) == null) {
-					procesos.get(i).coordinador(coordinador);;
-				} 
-				else {
-					uri = UriBuilder.fromUri("http://" + ubicaciones.get(i) + ":8080/Bully").build();
-					target = cliente.target(uri);
-					System.out.println(target.path("rest").path("servicio").path("coordinar").queryParam("coordinador", coordinador).request(MediaType.TEXT_PLAIN).get(String.class));
-				}
+					procesos.get(i).coordinador(coordinador);
 			}
 		}
 		return "Has indicado que eres el nuevo coordinaddor";
@@ -125,22 +120,12 @@ public class Servicio {
 	@Produces(MediaType.TEXT_PLAIN)
 	@Path("arranca")
 	public String arranca(@QueryParam(value = "identificador") int identificador) {
-		URI uri;
-		WebTarget target;
-		Client cliente = ClientBuilder.newClient();
 		
-		if (ubicaciones.get(identificador) == null) {
-			for(int i=0; i<procesos.size(); i++) {
-				if (procesos.get(i).ID == identificador) {
-					procesos.get(i).arrancar();;
-				}
+		for(int i=0; i<procesos.size(); i++) {
+			if (procesos.get(i).ID == identificador) {
+				procesos.get(i).arrancar();
 			}
 		} 
-		else {
-			uri = UriBuilder.fromUri("http://" + ubicaciones.get(identificador) + ":8080/Bully").build();
-			target = cliente.target(uri);
-			System.out.println(target.path("rest").path("servicio").path("arranca").request(MediaType.TEXT_PLAIN).get(String.class));
-		}
 		
 		return ("Proceso arrancado");
 	}
@@ -149,22 +134,11 @@ public class Servicio {
 	@Produces(MediaType.TEXT_PLAIN)
 	@Path("para")
 	public String para(@QueryParam(value = "identificador") int identificador) {
-
-		URI uri;
-		WebTarget target;
-		Client cliente = ClientBuilder.newClient();
 		
-		if (ubicaciones.get(identificador) == null) {
-			for(int i=0; i<procesos.size(); i++) {
-				if (procesos.get(i).ID == identificador) {
-					procesos.get(i).parar();
-				}
+		for(int i=0; i<procesos.size(); i++) {
+			if (procesos.get(i).ID == identificador) {
+				procesos.get(i).parar();
 			}
-		} 
-		else {
-			uri = UriBuilder.fromUri("http://" + ubicaciones.get(identificador) + ":8080/Bully").build();
-			target = cliente.target(uri);
-			System.out.println(target.path("rest").path("servicio").path("para").request(MediaType.TEXT_PLAIN).get(String.class));
 		}
 		
 		return ("Proceso parado");
@@ -177,21 +151,10 @@ public class Servicio {
 	public int computa(@QueryParam(value = "coordinador") int coordinador) {
 		int valor = 0;
 		
-		URI uri;
-		WebTarget target;
-		Client cliente = ClientBuilder.newClient();
-		
-		if (ubicaciones.get(coordinador) == null) {
-			for(int i=0; i<procesos.size(); i++) {
-				if (procesos.get(i).ID == coordinador) {
-					valor = procesos.get(i).computar();
-				}
+		for(int i=0; i<procesos.size(); i++) {
+			if (procesos.get(i).ID == coordinador) {
+				valor = procesos.get(i).computar();
 			}
-		} 
-		else {
-			uri = UriBuilder.fromUri("http://" + ubicaciones.get(coordinador) + ":8080/Bully").build();
-			target = cliente.target(uri);
-			valor = target.path("rest").path("servicio").path("computa").queryParam("coordinador", coordinador).request(MediaType.TEXT_PLAIN).get(int.class);
 		}
 		
 		return valor;

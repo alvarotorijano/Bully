@@ -12,6 +12,8 @@ import java.util.HashMap;
 
 public class Proceso extends Thread {
 
+	private static int NUM_PROCESOS = 6;
+
 	public int ID;       //ID del proceso
 	private int coordinador = -1;       //ID del coordinador
 	private estado_proceso_t estadoProceso;       //estado de la eleccion que será algun valor de la enumeracion
@@ -28,12 +30,6 @@ public class Proceso extends Thread {
 	private enum estado_proceso_t {
 		PARADO, CORRIENDO
 	}
-
-	Client client = ClientBuilder.newClient();
-	
-	URI uri = UriBuilder.fromUri("http://localhost:8080/Bully").build();
-	
-	WebTarget target = client.target(uri);
 	
 	
 	//Constructor para la creación de la clase
@@ -44,6 +40,9 @@ public class Proceso extends Thread {
 	}
 	
 	
+	public void updateAddress(HashMap ubicaciones) {
+		this.ubicaciones = ubicaciones;
+	}
 	
 	//************************************************************************************************
 	//
@@ -75,6 +74,11 @@ public class Proceso extends Thread {
 				}
 				
 				espera = (int) (Math.random() % 500) + 500; //actualizo el valor aleatorio de la espera
+				Client client = ClientBuilder.newClient();
+				String ip = this.ubicaciones.get(this.coordinador);
+				URI uri = UriBuilder.fromUri("http://" +  ip + ":8080/Bully").build();
+				
+				WebTarget target = client.target(uri);
 				this.valor = target.path("rest").path("servicio").path("computa").queryParam("coordinador", this.coordinador).request(MediaType.TEXT_PLAIN).get(int.class);
 				//mandar peticion al servidor
 				if(this.valor<0)
@@ -95,7 +99,15 @@ public class Proceso extends Thread {
 	public void eleccion() {
 		//estado de eleccion activa y mando pèticion al servidor para la eleccion pasandole mi ID
 		this.estadoEleccion = estado_eleccion_t.ELECCION_ACTIVA;
-		System.out.println(target.path("rest").path("servicio").path("elegir").queryParam("id", this.ID).request(MediaType.TEXT_PLAIN).get(String.class));
+		for(int i = this.ID +1; i< NUM_PROCESOS; i++) {
+			Client client = ClientBuilder.newClient();
+			String ip = this.ubicaciones.get(i);
+			URI uri = UriBuilder.fromUri("http://" +  ip + ":8080/Bully").build();
+			
+			WebTarget target = client.target(uri);
+			System.out.println(target.path("rest").path("servicio").path("elegir").queryParam("id", this.ID).request(MediaType.TEXT_PLAIN).get(String.class));
+
+		}
 		
 		//Espero el timeout de 1 segundo
 		synchronized(this.eleccion) {
@@ -142,11 +154,21 @@ public class Proceso extends Thread {
 	//************************************************************************************************
 	public void coordinador(int idCoordinador) {
 		if(this.ID == idCoordinador) {
-			System.out.println(target.path("rest").path("servicio").path("coordinar").queryParam("coordinador", this.ID).request(MediaType.TEXT_PLAIN).get(String.class));
+			for(int i = 0; i< NUM_PROCESOS; i++) {
+				if(i != this.ID) {
+					Client client = ClientBuilder.newClient();
+					String ip = this.ubicaciones.get(i);
+					URI uri = UriBuilder.fromUri("http://" +  ip + ":8080/Bully").build();
+					
+					WebTarget target = client.target(uri);
+					System.out.println(target.path("rest").path("servicio").path("coordinar").queryParam("coordinador", this.ID).request(MediaType.TEXT_PLAIN).get(String.class));
+
+				}
+			}
 		}
 		else {
 			synchronized(this.eleccion) {
-				this.eleccion = estado_eleccion_t.ACUERDO;
+				this.estadoEleccion = estado_eleccion_t.ACUERDO;
 				this.eleccion.notify();
 			}
 			this.coordinador = idCoordinador;
@@ -221,14 +243,19 @@ public class Proceso extends Thread {
 	//
 	//
 	//************************************************************************************************
-	public int confirmar() {
-		int valor;
+	public void confirmar(int sender) {
+		
 		if(this.estadoProceso == estado_proceso_t.CORRIENDO) {
-			valor = 1;
+			Client client = ClientBuilder.newClient();
+			String ip = this.ubicaciones.get(sender);
+			URI uri = UriBuilder.fromUri("http://" +  ip + ":8080/Bully").build();
+			
+			WebTarget target = client.target(uri);
+			System.out.println(target.path("rest").path("servicio").path("confirma").queryParam("id", sender).request(MediaType.TEXT_PLAIN).get(String.class));
+
+			
 		}
-		else
-			valor = -1;
-		return valor;
+
 	}
 	
 	
@@ -247,8 +274,6 @@ public class Proceso extends Thread {
 		}
 	}
 	
-	public void updateAddress(HashMap ubicaciones) {
-		this.ubicaciones = ubicaciones;
-	}
+	
 }
 
