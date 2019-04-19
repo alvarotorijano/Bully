@@ -27,6 +27,7 @@ public class Servicio {
 	private static ArrayList<Proceso> procesos = new ArrayList<Proceso>();
 	private static ArrayList<Integer> idsLibres = new ArrayList<Integer>();
 	private static HashMap<Integer, String> ubicaciones = new HashMap<>();
+	private static boolean inicializado = false; //Esta variable de momento esta aqui para decir que si ya hemos recibido un mensaje de inicializacion lo desechemos. Mas adente podemos contemplar si vamos a actualizar nuestro mapa de direcciones con lo que hemos recibido añadiendo o destruyendo procesos o lo que sea.
 	//Este array nos servirï¿½ para saber que ids tienen que tener los procesos que nosotros crearemos, tambien quedarï¿½ alineado con los procesos locales de la maquina, asi cuando tengamos nuestro array de procesos locales, asi no tendremos que encuestar a cada uno de los metodos hasta dar con el que tiene el id que queremos. Otra opcion es recorrer el array haciendo un proceso[i].getID
 	
 	//Metodo main para la creacion y arranque de los procesos, se pasan por argumentos los ids de los procesos
@@ -70,6 +71,21 @@ public class Servicio {
 		/*Se me ocurre que para cada mensaje que un proceso envie, se la envie siempre
 		 * al servidor local, y este a su vez decida si se la tiene que enviar a 
 		 * otra maquina, o ejecutar un metodo de alguno de los procesos que tiene*/
+	}
+	
+	@GET
+	@Produces(MediaType.TEXT_PLAIN)
+	@Path("inicializa")
+	public String inicializa(
+			@QueryParam(value = "mapa")String mapa // Este es el mapa de ids y direcciones
+			) 
+	{
+		if(inicializado == false) {
+			
+		}
+		ubicaciones = generaMapa (mapa);
+		System.out.println("Hola, soy la funcion inicializar");
+		return "OK";
 	}
 	
 	@GET
@@ -159,5 +175,17 @@ public class Servicio {
 		
 		return valor;
 
+	}
+	public static HashMap<Integer, String> generaMapa (String mapa) {
+		
+		String cadena = new String(Base64.getDecoder().decode(mapa)); //Decodificamos la cadena para volver a tener algo como esto: 1=192.168.1.2,2=127.0.0.1,3=192.168.1.3,4=127.0.0.1 
+		HashMap<Integer, String> ubicacionesRecibidas = new HashMap<>();
+		
+		for(int i=0; i<cadena.split(",").length; i++) {
+			ubicacionesRecibidas.put(Integer.valueOf(cadena.split(",")[i].split("=")[0]), cadena.split(",")[i].split("=")[1]);
+		}
+		
+		return ubicacionesRecibidas;
+		
 	}
 }
