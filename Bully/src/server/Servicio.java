@@ -31,6 +31,7 @@ public class Servicio {
 	//Este array nos servir� para saber que ids tienen que tener los procesos que nosotros crearemos, tambien quedar� alineado con los procesos locales de la maquina, asi cuando tengamos nuestro array de procesos locales, asi no tendremos que encuestar a cada uno de los metodos hasta dar con el que tiene el id que queremos. Otra opcion es recorrer el array haciendo un proceso[i].getID
 	
 	//Metodo main para la creacion y arranque de los procesos, se pasan por argumentos los ids de los procesos
+	/* 
 	public static void main(String[] args) {
 		
 		for (int i=0; i< NUM_PROCESOS; i++) {
@@ -39,12 +40,12 @@ public class Servicio {
 		
 		if(args.length > 1) {
 			for(int i = 0; i< args.length;) {
-				/*
-				 * 6	192.168.1.2
-				 * 5	227.0.0.1
-				 * 3	192.168.1.3
-				 * 4	227.0.0.1
-				 * */
+				
+				// 6	192.168.1.2
+				// 5	227.0.0.1
+				// 3	192.168.1.3
+				// 4	227.0.0.1
+				
 				idsLibres.remove(args[i]);
 				ubicaciones.put(Integer.valueOf(args[i++]), args[i++]);
 				
@@ -68,22 +69,23 @@ public class Servicio {
 		
 		//Ahora tenemos todos nuestros procesos funcionando
 		
-		/*Se me ocurre que para cada mensaje que un proceso envie, se la envie siempre
-		 * al servidor local, y este a su vez decida si se la tiene que enviar a 
-		 * otra maquina, o ejecutar un metodo de alguno de los procesos que tiene*/
+		//Se me ocurre que para cada mensaje que un proceso envie, se la envie siempre
+		// al servidor local, y este a su vez decida si se la tiene que enviar a 
+		// otra maquina, o ejecutar un metodo de alguno de los procesos que tiene
 	}
+	*/
 	
 	@GET
 	@Produces(MediaType.TEXT_PLAIN)
 	@Path("inicializa")
 	public String inicializa(
-			@QueryParam(value = "mapa")String mapa // Este es el mapa de ids y direcciones
+			@QueryParam(value = "mapa")String mensaje // Este es el mapa de ids y direcciones
 			) 
 	{
 		if(inicializado == false) {
 			
 		}
-		ubicaciones = generaMapa (mapa);
+		ubicaciones = generaMapa (mensaje);
 		System.out.println("Hola, soy la funcion inicializar");
 		return "OK";
 	}

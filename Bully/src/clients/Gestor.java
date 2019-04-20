@@ -42,9 +42,12 @@ public class Gestor {
 		mensaje = mensaje.replace("[", "").replace("]", "").replace(" ", ""); //Con esto quitamos los corchetes y los espacios porque dan muchos problemas. Nos queda algo como esto 1=192.168.1.2,2=127.0.0.1,3=192.168.1.3,4=127.0.0.1
 		mensaje=Base64.getEncoder().encodeToString(mensaje.getBytes()); //Esto nos permite convertir nuestra cadena en una sucesion de caracteres segura para ponerla en una URL y que los puntos, espacios, barras inclinadas etc no vuelvan loco al servidor web. Nos queda algo como esto MT0xOTIuMTY4LjEuMiwyPTEyNy4wLjAuMSwzPTE5Mi4xNjguMS4zLDQ9MTI3LjAuMC4x
 
+		/// Es necesario modificar esto para que se le envie el mapa a todos los servidores web. Asi que tengo que hacerme una lista de ips diferentes y mandarles el mapa. 
+		//Despues tengo que comprobar que ip tiene cada maquina y lanzar los procesos que le correspondan o enviar tambien en el mismo mensaje la direccion Ip a la que estamos llamando para que la maquina no tenga que leer sus propias direcciones
+		
 		//Llamamos al servicio REST
 		Client client = ClientBuilder.newClient();
-		URI uri = UriBuilder.fromUri("http://" +  "127.0.0.1" + ":8080/Bully").build();
+		URI uri = UriBuilder.fromUri("http://localhost:8080/Bully").build();
 		WebTarget target = client.target(uri);
 		
 		System.out.println(target.path("rest").path("servicio").path("inicializa").queryParam("mapa", mensaje).request(MediaType.TEXT_PLAIN).get(String.class));
@@ -52,6 +55,7 @@ public class Gestor {
 	}
 	
 	public static boolean compruebaArgumentos(String[] args) {
+		/// En esta funcion hay que elimnar la comprobacion de IPs porque se van a repetir obligatoriamente
 		//Este metodo compreuaba si el numero y tipo de los parametros es correcto y si hay alguno repetido
 		
 		ArrayList<String> ids = new ArrayList<String>();
