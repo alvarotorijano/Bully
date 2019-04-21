@@ -1,5 +1,8 @@
 package server;
 
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
 import java.net.URI;
 import java.util.*;
 
@@ -23,8 +26,8 @@ import clients.Proceso;
 public class Servicio {
 	
 	//numero de procesos totales 
-	private static int NUM_PROCESOS = 6;
-	private static ArrayList<Proceso> procesos = new ArrayList<Proceso>();
+	private static int NUM_PROCESOS = 0;
+	private static HashMap<Integer, Proceso> procesos = new HashMap<Integer, Proceso>();
 	private static ArrayList<Integer> idsLibres = new ArrayList<Integer>();
 	private static HashMap<Integer, String> ubicaciones = new HashMap<>();
 	private static boolean inicializado = false; //Esta variable de momento esta aqui para decir que si ya hemos recibido un mensaje de inicializacion lo desechemos. Mas adente podemos contemplar si vamos a actualizar nuestro mapa de direcciones con lo que hemos recibido añadiendo o destruyendo procesos o lo que sea.
@@ -82,10 +85,37 @@ public class Servicio {
 			@QueryParam(value = "mapa")String mensaje // Este es el mapa de ids y direcciones
 			) 
 	{
+		
+		ArrayList<String> direccionesPropias = new ArrayList<String>();
+		
+		procesos.get
+		
 		if(inicializado == false) {
+			inicializado = true;
+			try {
+				ubicaciones = generaMapa (mensaje);
+
+				System.out.println("Hola soy la funcion incializar y he recibido este mapa: " + ubicaciones);
+				direccionesPropias = listarDireccionesLocales();
+				
+				Iterator iteradorUbicaciones = ubicaciones.entrySet().iterator();
+				
+				while (iteradorUbicaciones.hasNext()) {
+					Map.Entry proceso = (Map.Entry)iteradorUbicaciones.next();
+					if (direccionesPropias.contains(proceso.getValue())) {
+						//Aqui lanzo los procesos
+						System.out.println("Lanzo el proceso con id + " + proceso.getKey());
+						procesos.put((Integer)proceso.getKey(), new Proceso((Integer)proceso.getKey()));
+					}
+				}
+				
+			}
+			catch (Exception e) {
+				System.out.println("Error leyando las direcciones IP locales");
+			}
 			
 		}
-		ubicaciones = generaMapa (mensaje);
+		
 		System.out.println("Hola, soy la funcion inicializar");
 		return "OK";
 	}
@@ -190,4 +220,32 @@ public class Servicio {
 		return ubicacionesRecibidas;
 		
 	}
+	
+	public static boolean arraylistContains (ArrayList<String> objetivo, ArrayList<String> origen) {
+		for (int i = 0; i<objetivo.size(); i++) {
+			if (origen.contains(objetivo.get(i))) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	public static ArrayList<String> listarDireccionesLocales () throws SocketException{
+		
+		ArrayList<String> direcciones = new ArrayList<String>();
+		Enumeration e = NetworkInterface.getNetworkInterfaces();
+		
+		while(e.hasMoreElements())
+		{
+		    NetworkInterface n = (NetworkInterface) e.nextElement();
+		    Enumeration ee = n.getInetAddresses();
+		    while (ee.hasMoreElements())
+		    {
+		        InetAddress i = (InetAddress) ee.nextElement();
+		        direcciones.add(i.getHostAddress());
+		    }
+		}
+		return direcciones;
+	}
+	
 }

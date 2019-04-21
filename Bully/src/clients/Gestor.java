@@ -1,11 +1,18 @@
+//A
+
 package clients;
 
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
 import java.net.URI;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Scanner;
 import java.util.Base64;
+import java.util.Collection;
+import java.util.Enumeration;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
@@ -27,7 +34,13 @@ public class Gestor {
 		if (compruebaArgumentos(args) == true) {
 			System.out.println("Argumentos correctos, iniciando gestor: ");
 			ubicaciones = generarMapa(args);
-			iniciaServicios(ubicaciones);
+			try{
+				iniciaServicios(ubicaciones);
+			}
+			catch (Exception e) {
+				System.out.println(e);
+			}	
+			
 			menu();
 		}
 		else {
@@ -35,31 +48,67 @@ public class Gestor {
 		}
 	}
 	
-	public static void iniciaServicios (HashMap<Integer, String> ubicaciones) {
+	public static void iniciaServicios (HashMap<Integer, String> ubicaciones){
 		String mensaje;
+		ArrayList<String> maquinas = obtenerElementosUnicos(new ArrayList<String>(ubicaciones.values()));
+		
 		System.out.println("Inicializando servicios");
 		mensaje = ubicaciones.entrySet().toString();//Esto nos devuelve una cadena asi: [1=192.168.1.2, 2=127.0.0.1, 3=192.168.1.3, 4=127.0.0.1]
 		mensaje = mensaje.replace("[", "").replace("]", "").replace(" ", ""); //Con esto quitamos los corchetes y los espacios porque dan muchos problemas. Nos queda algo como esto 1=192.168.1.2,2=127.0.0.1,3=192.168.1.3,4=127.0.0.1
 		mensaje=Base64.getEncoder().encodeToString(mensaje.getBytes()); //Esto nos permite convertir nuestra cadena en una sucesion de caracteres segura para ponerla en una URL y que los puntos, espacios, barras inclinadas etc no vuelvan loco al servidor web. Nos queda algo como esto MT0xOTIuMTY4LjEuMiwyPTEyNy4wLjAuMSwzPTE5Mi4xNjguMS4zLDQ9MTI3LjAuMC4x
+		
+		for (int i = 0; i<maquinas.size(); i++) {
+			System.out.println("Llamo a la maquina " + maquinas.get(i) + " y tengo estas maquinas: " + maquinas.size());
+			Client client = ClientBuilder.newClient();
+			URI uri = UriBuilder.fromUri("http://" + maquinas.get(i) + ":8080/Bully").build();
+			WebTarget target = client.target(uri);
+			System.out.println(target.path("rest").path("servicio").path("inicializa").queryParam("mapa", mensaje).request(MediaType.TEXT_PLAIN).get(String.class));
+		}
+	}
+	
+	public static boolean arraylistContains (ArrayList<String> objetivo, ArrayList<String> origen) {
+		for (int i = 0; i<objetivo.size(); i++) {
+			if (origen.contains(objetivo.get(i))) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	public static ArrayList<String> listarDireccionesLocales () throws SocketException{
+		
+		ArrayList<String> direcciones = new ArrayList<String>();
+		Enumeration e = NetworkInterface.getNetworkInterfaces();
+		
+		while(e.hasMoreElements())
+		{
+		    NetworkInterface n = (NetworkInterface) e.nextElement();
+		    Enumeration ee = n.getInetAddresses();
+		    while (ee.hasMoreElements())
+		    {
+		        InetAddress i = (InetAddress) ee.nextElement();
+		        direcciones.add(i.getHostAddress());
+		    }
+		}
+		return direcciones;
+	}
+	
+	public static ArrayList<String> obtenerElementosUnicos (ArrayList<String> entrada){
+	
+		ArrayList<String> salida = new ArrayList<String>();
 
-		/// Es necesario modificar esto para que se le envie el mapa a todos los servidores web. Asi que tengo que hacerme una lista de ips diferentes y mandarles el mapa. 
-		//Despues tengo que comprobar que ip tiene cada maquina y lanzar los procesos que le correspondan o enviar tambien en el mismo mensaje la direccion Ip a la que estamos llamando para que la maquina no tenga que leer sus propias direcciones
-		
-		//Llamamos al servicio REST
-		Client client = ClientBuilder.newClient();
-		URI uri = UriBuilder.fromUri("http://localhost:8080/Bully").build();
-		WebTarget target = client.target(uri);
-		
-		System.out.println(target.path("rest").path("servicio").path("inicializa").queryParam("mapa", mensaje).request(MediaType.TEXT_PLAIN).get(String.class));
-		
+		for(int i = 0; i<entrada.size(); i++) {
+			if (salida.contains(entrada.get(i)) == false ){
+				salida.add(entrada.get(i));
+			}
+		}
+		return salida;
 	}
 	
 	public static boolean compruebaArgumentos(String[] args) {
-		/// En esta funcion hay que elimnar la comprobacion de IPs porque se van a repetir obligatoriamente
-		//Este metodo compreuaba si el numero y tipo de los parametros es correcto y si hay alguno repetido
+		//Este metodo compreuaba si el numero y tipo de los parametros es correcto y si hay algun id repetido o negativo
 		
 		ArrayList<String> ids = new ArrayList<String>();
-		ArrayList<String> ips = new ArrayList<String>();
 		Integer i = 0, j = 0;
 		
 		if (args.length % 2 != 0 || args.length == 0) {
@@ -69,8 +118,7 @@ public class Gestor {
 		else {
 			for(i = 0; i<args.length; i++) {
 				if (i%2 == 0) { //este tiene que ser un ID
-				  //if(ids.contains(args[i]) == true || Integer.parseInt(args[i] < 0) { Esta linea comprueba ademas que los ids sean positivos
-					if (ids.contains(args[i]) == true) {//si lo tenemos en el array entonces es que está repetido
+				  if(ids.contains(args[i]) == true || Integer.parseInt(args[i]) < 0) {// Esta linea comprueba ademas que los ids sean positivos
 						mensajeDepuracion(String.join("El id: ", args[i], " es invalido o esta repetido"));
 						return false;
 					}
@@ -79,8 +127,7 @@ public class Gestor {
 					}
 				}
 				else {
-					if ((ips.contains(args[i]) && !args[i].equals("127.0.0.1") )|| args[i].split("\\.").length != 4) {
-						System.out.println();
+					if ( args[i].equals("127.0.0.1") || args[i].split("\\.").length != 4) {
 						mensajeDepuracion(String.join("El argumento ", args[i], " esta repetido o mal formado"));
 						return false;
 					}
@@ -91,7 +138,6 @@ public class Gestor {
 								return false;
 							}
 						}
-						ips.add(args[i]);
 					}
 				}
 			}
@@ -219,13 +265,14 @@ public class Gestor {
 	}
 
 	private static void muestraProcesos() { //Esta funcion supongo que hay que rehacerla porque no está haciendo nada, pero no la quiero cambiar porque no se que quieres hacer con ella.
-		for(int i = 0; i< ubicaciones.size(); i++) {
+		for(int i = 0; i< ubicaciones.size(); i++) { //Esto hau que asgurarse de que los procesos esten en orden
 			Client client = ClientBuilder.newClient();
-			String ip = ubicaciones.get(i);
+			String ip = ubicaciones.get(i); //Esto te devuelve el value de la key i. Si no hay nada, te devuelve NULL
 			URI uri = UriBuilder.fromUri("http://" +  ip + ":8080/Bully").build();
 			WebTarget target = client.target(uri);
 			
-			//Sacar clave del HashMap 
+			//Sacar clave del HashMap
+			//ubicaciones.
 			System.out.println();
 		}
 	}

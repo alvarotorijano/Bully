@@ -36,7 +36,7 @@ public class Proceso extends Thread {
 	public Proceso(int ID) {
 		this.ID = ID;
 		this.estadoProceso = estado_proceso_t.CORRIENDO;
-		
+		System.out.println("Hola, soy el proceso " + this.ID + " y acabo de ser creado");
 	}
 	
 	
