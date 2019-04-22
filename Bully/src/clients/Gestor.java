@@ -9,16 +9,21 @@ import java.net.URI;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Scanner;
 import java.util.Base64;
 import java.util.Collection;
 import java.util.Enumeration;
+import java.util.*;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriBuilder;
+
+import javassist.bytecode.Descriptor.Iterator;
 
 
 public class Gestor {
@@ -146,7 +151,7 @@ public class Gestor {
 	}
 	
 	
-	// Esta funcion imprime un mensaje si la depuracion está activada, asi puedo deactivar todos los mensajes de depuracion cambiando solamente una variable. Esto tiene que hacerse asi porque en java no existe la compilacion condicional.
+	// Esta funcion imprime un mensaje si la depuracion estï¿½ activada, asi puedo deactivar todos los mensajes de depuracion cambiando solamente una variable. Esto tiene que hacerse asi porque en java no existe la compilacion condicional.
 	public static void mensajeDepuracion(String mensaje) {
 		if (depuracion == true) {
 			System.out.println(mensaje);
@@ -177,7 +182,7 @@ public class Gestor {
 				
 			case 4:
 				System.out.println("Saliendo");
-				input.close(); //Añadida esta linea para evitar la advertencia de que nunca cerramos el stream de entrada
+				input.close(); //Aï¿½adida esta linea para evitar la advertencia de que nunca cerramos el stream de entrada
 				break;
 			
 			default:
@@ -264,17 +269,23 @@ public class Gestor {
 	
 	}
 
-	private static void muestraProcesos() { //Esta funcion supongo que hay que rehacerla porque no está haciendo nada, pero no la quiero cambiar porque no se que quieres hacer con ella.
-		for(int i = 0; i< ubicaciones.size(); i++) { //Esto hau que asgurarse de que los procesos esten en orden
-			Client client = ClientBuilder.newClient();
-			String ip = ubicaciones.get(i); //Esto te devuelve el value de la key i. Si no hay nada, te devuelve NULL
-			URI uri = UriBuilder.fromUri("http://" +  ip + ":8080/Bully").build();
-			WebTarget target = client.target(uri);
+	private static void muestraProcesos() { //Esta funcion supongo que hay que rehacerla porque no estï¿½ haciendo nada, pero no la quiero cambiar porque no se que quieres hacer con ella.
+	//Esto hau que asgurarse de que los procesos esten en orden
 			
 			//Sacar clave del HashMap
 			//ubicaciones.
+			Iterator iteradorUbicaciones = ubicaciones.entrySet().iterator();
+			while(iteradorUbicaciones.hasNext()) {
+				Map.Entry entradaUbicaciones = (Map.Entry) iteradorUbicaciones.next();
+				Client client = ClientBuilder.newClient();
+				String ip =(String) entradaUbicaciones.getValue(); //Esto te devuelve el value de la key i. Si no hay nada, te devuelve NULL
+				URI uri = UriBuilder.fromUri("http://" +  ip + ":8080/Bully").build();
+				WebTarget target = client.target(uri);
+				
+				System.out.println(target.path("rest").path("servicio").path("muestra").queryParam("id", (Integer) entradaUbicaciones.getKey()).request(MediaType.TEXT_PLAIN).get(String.class));
+				
+			}
 			System.out.println();
-		}
 	}
 	
 	//Esta cosa no me gusta porque es grande y no hace nada, pero no he querido cambiarlo y meterlo todo en una linea. 

@@ -44,6 +44,13 @@ public class Proceso extends Thread {
 		this.ubicaciones = ubicaciones;
 	}
 	
+	public int getCoordinador() {
+		return coordinador;
+	}
+	
+	public estado_proceso_t getEstado() {
+		return estadoProceso;
+	}
 	//************************************************************************************************
 	//
 	//
