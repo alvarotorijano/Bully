@@ -17,14 +17,13 @@ import java.util.Base64;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.*;
+//import java.util.Iterator;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriBuilder;
-
-import javassist.bytecode.Descriptor.Iterator;
 
 
 public class Gestor {
@@ -210,13 +209,9 @@ public class Gestor {
 	}
 
 	private static void arrancaProceso() {
-		System.out.flush();
+		System.out.flush(); ///comprobar que tambien funciona en windows y comentar aqui
 		
-		System.out.println("Indica el ID del proceso que quieras arrnacar entre los siguientes");
-		for(int i = 0; i< procesosParados.size(); i++) {
-			System.out.print(procesosParados.get(i) + "   " );
-		}
-		
+		System.out.println("Indica el ID del proceso que quieras arranacar");
 		Scanner input = new Scanner(System.in);
 		
 		int id = input.nextInt();
@@ -275,7 +270,8 @@ public class Gestor {
 			
 			//Sacar clave del HashMap
 			//ubicaciones.
-			Iterator iteradorUbicaciones = ubicaciones.entrySet().iterator();
+
+			Iterator iteradorUbicaciones =  ubicaciones.entrySet().iterator();
 			while(iteradorUbicaciones.hasNext()) {
 				Map.Entry entradaUbicaciones = (Map.Entry) iteradorUbicaciones.next();
 				Client client = ClientBuilder.newClient();
