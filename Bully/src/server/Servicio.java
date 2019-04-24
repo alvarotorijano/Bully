@@ -71,16 +71,12 @@ public class Servicio {
 				
 				while(iteradorProcesos.hasNext()) {
 					Map.Entry entradaProceso = (Map.Entry)iteradorProcesos.next();
-					
-					if(procesos.get((Integer)entradaProceso.getKey()) != null)
-						procesos.get((Integer)entradaProceso.getKey()).start();
+					procesos.get((Integer)entradaProceso.getKey()).start();
 				}
-				
 			}
 			catch (Exception e) {
 				System.out.println("Error leyando las direcciones IP locales");
 			}
-			
 		}
 		
 		System.out.println("Hola, soy la funcion inicializar");
