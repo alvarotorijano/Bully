@@ -1,5 +1,3 @@
-//Comentario para modificar el archivo
-
 package server;
 
 import java.net.InetAddress;
