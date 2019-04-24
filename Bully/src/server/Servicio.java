@@ -63,7 +63,7 @@ public class Servicio {
 					if (direccionesPropias.contains(proceso.getValue())) {
 						//Aqui lanzo los procesos
 						System.out.println("Lanzo el proceso con id + " + proceso.getKey());
-						procesos.put((Integer)proceso.getKey(), new Proceso((Integer)proceso.getKey()));
+						procesos.put((Integer)proceso.getKey(), new Proceso((Integer)proceso.getKey(), ubicaciones));
 					}
 				}
 				
