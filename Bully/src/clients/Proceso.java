@@ -11,6 +11,8 @@ import javax.ws.rs.core.UriBuilder;
 import java.math.*;
 import java.net.URI;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 public class Proceso extends Thread {
 
@@ -66,7 +68,7 @@ public class Proceso extends Thread {
 		eleccion();
 		while (true) {
 			if (this.estadoProceso == estado_proceso_t.PARADO) {
-				synchronized (this.getClass()) { // Si está parado paro la clase [forma de "matar" al proceso]
+				synchronized (this.getClass()) { // Si esta parado paro la clase [forma de "matar" al proceso]
 					try {
 						this.getClass().wait();
 					} catch (InterruptedException e) {
@@ -110,17 +112,20 @@ public class Proceso extends Thread {
 		// estado de eleccion activa y mando pèticion al servidor para la eleccion
 		// pasandole mi ID
 		this.estadoEleccion = estado_eleccion_t.ELECCION_ACTIVA;
-		for (int i = this.ID + 1; i < NUM_PROCESOS; i++) {
-			Client client = ClientBuilder.newClient();
-			String ip = this.ubicaciones.get(i);
-			System.out.println("Este es mi hashmap" + ubicaciones.toString());
-			System.out.println("Llamo a la direccion IP: " + ip + " que tiene que corresponder con el proceso: " + i);;
-			URI uri = UriBuilder.fromUri("http://" + ip + ":8080/Bully").build();
-
-			WebTarget target = client.target(uri);
-			System.out.println(target.path("rest").path("servicio").path("elegir").queryParam("id", this.ID)
-					.request(MediaType.TEXT_PLAIN).get(String.class));
-
+		
+		Iterator iteradorUbicaciones = ubicaciones.entrySet().iterator();
+		
+		while (iteradorUbicaciones.hasNext()) {
+			Map.Entry proceso = (Map.Entry)iteradorUbicaciones.next();
+			if((Integer)proceso.getKey() > this.ID) {
+				Client client = ClientBuilder.newClient();
+				// System.out.println("Este es mi hashmap" + ubicaciones.toString());
+				System.out.println("Eleccion: Llamo a la direccion IP: " + proceso.getValue() + " que tiene que corresponder con el proceso: " + proceso.getKey() + " soy el proceso " + this.ID);
+				URI uri = UriBuilder.fromUri("http://" + proceso.getValue() + ":8080/Bully").build();
+				WebTarget target = client.target(uri);
+				System.out.println(target.path("rest").path("servicio").path("elegir").queryParam("id", proceso.getKey()).queryParam("sender", this.ID)
+						.request(MediaType.TEXT_PLAIN).get(String.class));
+			}
 		}
 
 		// Espero el timeout de 1 segundo
@@ -170,24 +175,28 @@ public class Proceso extends Thread {
 	// ************************************************************************************************
 	public void coordinador(int idCoordinador) {
 		if (this.ID == idCoordinador) {
-			for (int i = 0; i < NUM_PROCESOS; i++) {
-				if (i != this.ID) {
+			
+			Iterator iteradorUbicaciones = ubicaciones.entrySet().iterator();
+			
+			while (iteradorUbicaciones.hasNext()) {
+				Map.Entry proceso = (Map.Entry)iteradorUbicaciones.next();
+				if((Integer)proceso.getKey() != this.ID) {
 					Client client = ClientBuilder.newClient();
-					String ip = this.ubicaciones.get(i);
-					URI uri = UriBuilder.fromUri("http://" + ip + ":8080/Bully").build();
-
+					URI uri = UriBuilder.fromUri("http://" + (String)proceso.getValue() + ":8080/Bully").build();
+					//System.out.println("Coordinador: Llamo a la direccion IP: " + (String)proceso.getValue() + " que tiene que corresponder con el proceso: " + i + " soy el proceso " + this.ID);
 					WebTarget target = client.target(uri);
-					System.out.println(target.path("rest").path("servicio").path("coordinar")
-							.queryParam("coordinador", this.ID).request(MediaType.TEXT_PLAIN).get(String.class));
-
+					System.out.println(target.path("rest").path("servicio").path("coordinar").queryParam("coordinador", this.ID).request(MediaType.TEXT_PLAIN).get(String.class));
 				}
 			}
+			
 		} else {
 			synchronized (this.eleccion) {
 				this.estadoEleccion = estado_eleccion_t.ACUERDO;
 				this.eleccion.notify();
 			}
+			
 			this.coordinador = idCoordinador;
+			System.out.println("Soy el proceso " + this.ID + " y  mi coordinador es: " + this.coordinador);
 		}
 	}
 
@@ -266,7 +275,7 @@ public class Proceso extends Thread {
 			Client client = ClientBuilder.newClient();
 			String ip = this.ubicaciones.get(sender);
 			URI uri = UriBuilder.fromUri("http://" + ip + ":8080/Bully").build();
-
+			System.out.println("Esta es la direccion que puede petar: " + ip);
 			WebTarget target = client.target(uri);
 			System.out.println(target.path("rest").path("servicio").path("confirma").queryParam("id", sender)
 					.request(MediaType.TEXT_PLAIN).get(String.class));

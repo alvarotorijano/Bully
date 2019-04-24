@@ -129,7 +129,7 @@ public class Servicio {
 			}
 				
 		}
-		return "Has indicado que eres el nuevo coordinaddor";
+		return "Has indicado que eres el nuevo coordinaddor: " + coordinador;
 	}
 	
 	@GET
