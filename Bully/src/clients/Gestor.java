@@ -251,14 +251,17 @@ public class Gestor {
 			Client client = ClientBuilder.newClient();
 			String ip = ubicaciones.get(id);
 			URI uri = UriBuilder.fromUri("http://" +  ip + ":8080/Bully").build();
+			System.out.println("Llamo parar al proceso " + id + " con la ip " + ip);
 			WebTarget target = client.target(uri);
 			
 			System.out.println(target.path("rest").path("servicio").path("para").queryParam("identificador", id).request(MediaType.TEXT_PLAIN).get(String.class));
+			System.out.println("Llamo parar al proceso " + id + " con la ip " + ip + " despues");
 		}
 		else {
 			System.out.println("Operacion abortada: parar proceso");
 		}
 		input.close();
+		menu();
 	
 	}
 
