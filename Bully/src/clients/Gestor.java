@@ -22,7 +22,6 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriBuilder;
 
-
 public class Gestor {
 	
 	private static boolean depuracion = true;
@@ -160,7 +159,7 @@ public class Gestor {
 		Scanner input = new Scanner(System.in); //Esto estaba dentro del bucle y cada vez que el bucle iteraba se ejecutaba...
 		
 		while(eleccion != 4) {
-			
+
 			mostrarMenu();
 			eleccion = input.nextInt();
 			
@@ -170,11 +169,11 @@ public class Gestor {
 				break;
 				
 			case 2:
-				paraProceso();
+				paraProceso(input);
 				break;
 				
 			case 3:
-				arrancaProceso();
+				arrancaProceso(input);
 				break;
 				
 			case 4:
@@ -205,11 +204,9 @@ public class Gestor {
 		return ubicaciones;
 	}
 
-	private static void arrancaProceso() {
-		System.out.flush(); ///comprobar que tambien funciona en windows y comentar aqui
+	private static void arrancaProceso(Scanner input) {
 		
 		System.out.println("Indica el ID del proceso que quieras arranacar");
-		Scanner input = new Scanner(System.in);
 		
 		int id = input.nextInt();
 		
@@ -229,16 +226,16 @@ public class Gestor {
 		else {
 			System.out.println("Operacion abortada: arrancar proceso");
 		}
-		input.close();
+		//input.close();
 		
 	}
 
-	private static void paraProceso() {
-		System.out.flush();
+	private static void paraProceso(Scanner input) {
+		//System.out.flush();
 		
 		System.out.println("Indica el ID del proceso que quieras parar comprendido entre los valores 1 y " + ubicaciones.size());
 		
-		Scanner input = new Scanner(System.in);
+		//Scanner inputP = new Scanner(System.in);
 		
 		int id = input.nextInt();
 		
@@ -260,8 +257,7 @@ public class Gestor {
 		else {
 			System.out.println("Operacion abortada: parar proceso");
 		}
-		input.close();
-		menu();
+		//input.close();
 	
 	}
 

@@ -24,6 +24,7 @@ public class Proceso extends Thread {
 	int espera = (int) (Math.random() % 500) + 500; // timeout entre 0.5 y 1 para el metodo run()
 	private Object eleccionPasiva = new Object(); // objeto de sincronizacion del metodo eleccion()
 	private Object eleccionAcuerdo = new Object();
+	private Object objetoEstado = new Object();
 	private int valor;
 	private static HashMap<Integer, String> ubicaciones = new HashMap<>();
 
@@ -66,7 +67,6 @@ public class Proceso extends Thread {
 	public void run() {
 		prueba++;
 		eleccion();
-		System.out.println("Llamo a mi metodo eleccion y soy el proceso " + this.ID + " y se ha llamado " + prueba);
 		while (true) {
 			if (this.estadoProceso == estado_proceso_t.PARADO) {
 				synchronized (this.getClass()) { // Si esta parado paro la clase [forma de "matar" al proceso]
@@ -180,29 +180,32 @@ public class Proceso extends Thread {
 	//
 	// ************************************************************************************************
 	public void coordinador(int idCoordinador) {
-		if (this.ID == idCoordinador) {
-			this.coordinador = idCoordinador;
-			Iterator iteradorUbicaciones = ubicaciones.entrySet().iterator();
-			
-			while (iteradorUbicaciones.hasNext()) {
-				Map.Entry proceso = (Map.Entry)iteradorUbicaciones.next();
-				if((Integer)proceso.getKey() != this.ID) {
-					Client client = ClientBuilder.newClient();
-					URI uri = UriBuilder.fromUri("http://" + (String)proceso.getValue() + ":8080/Bully").build();
-					//System.out.println("Coordinador: Llamo a la direccion IP: " + (String)proceso.getValue() + " que tiene que corresponder con el proceso: " + i + " soy el proceso " + this.ID);
-					WebTarget target = client.target(uri);
-					System.out.println(target.path("rest").path("servicio").path("coordinar").queryParam("coordinador", this.ID).request(MediaType.TEXT_PLAIN).get(String.class));
+		if(this.estadoProceso == estado_proceso_t.CORRIENDO) {
+			if (this.ID == idCoordinador) {
+				this.coordinador = idCoordinador;
+				Iterator iteradorUbicaciones = ubicaciones.entrySet().iterator();
+				
+				while (iteradorUbicaciones.hasNext()) {
+					Map.Entry proceso = (Map.Entry)iteradorUbicaciones.next();
+					if((Integer)proceso.getKey() != this.ID) {
+						Client client = ClientBuilder.newClient();
+						URI uri = UriBuilder.fromUri("http://" + (String)proceso.getValue() + ":8080/Bully").build();
+						//System.out.println("Coordinador: Llamo a la direccion IP: " + (String)proceso.getValue() + " que tiene que corresponder con el proceso: " + i + " soy el proceso " + this.ID);
+						WebTarget target = client.target(uri);
+						System.out.println(target.path("rest").path("servicio").path("coordinar").queryParam("coordinador", this.ID).request(MediaType.TEXT_PLAIN).get(String.class));
+					}
 				}
+			} else {
+				synchronized (this.eleccionAcuerdo) {
+					this.estadoEleccion = estado_eleccion_t.ACUERDO;
+					this.eleccionAcuerdo.notify();
+				}
+				
+				this.coordinador = idCoordinador;
+				//System.out.println("Soy el proceso " + this.ID + " y  mi coordinador es: " + this.coordinador);
 			}
-		} else {
-			synchronized (this.eleccionAcuerdo) {
-				this.estadoEleccion = estado_eleccion_t.ACUERDO;
-				this.eleccionAcuerdo.notify();
-			}
-			
-			this.coordinador = idCoordinador;
-			//System.out.println("Soy el proceso " + this.ID + " y  mi coordinador es: " + this.coordinador);
 		}
+		
 	}
 
 	// ************************************************************************************************
@@ -239,14 +242,17 @@ public class Proceso extends Thread {
 	// ************************************************************************************************
 	public void parar() {
 		this.estadoProceso = estado_proceso_t.PARADO;
-		synchronized (this.getClass()) {
+		System.out.println("Soy el proceso con ID " + this.ID + " y me voy a parar");
+		/*synchronized (objetoEstado) {
 			try {
-				this.getClass().wait();
+				objetoEstado.wait();
+				System.out.println("Soy el proceso con ID " + this.ID + " y me da que aqui esta el problema1");
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-		}
+		}*/
+		System.out.println("Soy el proceso con ID " + this.ID + " y me da que aqui esta el problema2");
 	}
 
 	// ************************************************************************************************
@@ -258,9 +264,9 @@ public class Proceso extends Thread {
 	//
 	// ************************************************************************************************
 	public void arrancar() {
-		synchronized (this.getClass()) {
-			this.getClass().notify();
-		}
+		/*synchronized (objetoEstado) {
+			objetoEstado.notify();
+		}*/
 		this.estadoProceso = estado_proceso_t.CORRIENDO;
 		eleccion();
 	}
@@ -284,8 +290,10 @@ public class Proceso extends Thread {
 			System.out.println(target.path("rest").path("servicio").path("confirma").queryParam("id", sender)
 					.request(MediaType.TEXT_PLAIN).get(String.class));
 
+			if(this.ID == this.coordinador) {
+				coordinador(this.ID);
+			}
 		}
-
 	}
 
 	// ************************************************************************************************

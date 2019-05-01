@@ -89,8 +89,10 @@ public class Servicio {
 			@QueryParam(value = "sender")int sender // este es el emisor
 			) {
 			
-		if(procesos.get(id) != null)
+		if(procesos.get(id) != null) {
 			procesos.get(id).confirmar(sender);
+
+		}
 		
 		
 		return "Eleccion enviada";
@@ -146,8 +148,12 @@ public class Servicio {
 	@Path("para")
 	public String para(@QueryParam(value = "identificador") int identificador) {
 
-		if(procesos.get(identificador) != null)
+		if(procesos.get(identificador) != null) {
+			System.out.println("Soy el servicio y me ha llegado una peticion parar al proceso " + identificador);
 			procesos.get(identificador).parar();
+			
+		}
+			
 		
 		return ("Proceso parado");
 	}
