@@ -1,8 +1,6 @@
-#!/bin/bash
-
-
+#!/usr/bin/bash
 sudo apt install default-jre git -y
-cd 
+cd ~/
 rm -rf apacheServer
 # rm -rf Bully
 # git clone https://github.com/alvarotorijano/Bully.git
