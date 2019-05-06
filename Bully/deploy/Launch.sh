@@ -1,6 +1,6 @@
-#!/usr/bin/bash
+#!/bin/bash
 sudo apt install default-jre git -y
-cd ~/
+#cd ~/
 rm -rf apacheServer
 # rm -rf Bully
 # git clone https://github.com/alvarotorijano/Bully.git
@@ -17,6 +17,5 @@ rm -rf apache-tomcat-7.0.94
 export JAVA_HOME=$(readlink -f /usr/bin/java | sed "s:bin/java::")
 export CATALINA_HOME=~/apacheServer/bin
 
-cp Bully/Bully/deploy/Bully.war apacheServer/webapps/
-
-./apacheServer/bin/startup.sh 
+cp Bully/Bully/deploy/Bully.war ~/apacheServer/webapps/;
+sudo ./apacheServer/bin/startup.sh 
