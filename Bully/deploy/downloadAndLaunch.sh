@@ -1,22 +1,3 @@
-nArgumentos=$#
-
-for ip in $@
-do
-	echo "parametro: $ip"
-	if valid_ip $ip; 
-	then 
-		ssh root@$ip "
-			rm -rf Bully;
-			git clone https://github.com/alvarotorijano/Bully.git;
-			./Bully/Bully/deploy/Launch.sh
-		"
-	; 
-	else 
-		echo "Parametro invalido $ip"; 
-	fi
-        
-done
-
 function valid_ip()
 {
     local  ip=$1
@@ -33,3 +14,25 @@ function valid_ip()
     fi
     return $stat
 }
+
+
+nArgumentos=$#
+
+for ip in $@
+do
+	echo "parametro: $ip"
+	if valid_ip $ip; 
+	then 
+		ssh root@$ip "
+			rm -rf Bully;
+			apt update;
+			apt install git wget -y;
+			git clone https://github.com/alvarotorijano/Bully.git;
+			./Bully/Bully/deploy/Launch.sh
+		" 
+	else 
+		echo "Parametro invalido $ip"; 
+	fi
+        
+done
+
