@@ -290,9 +290,7 @@ public class Proceso extends Thread {
 			System.out.println(target.path("rest").path("servicio").path("confirma").queryParam("id", sender)
 					.request(MediaType.TEXT_PLAIN).get(String.class));
 
-			if(this.ID == this.coordinador) {
-				coordinador(this.ID);
-			}
+			eleccion();
 		}
 	}
 
