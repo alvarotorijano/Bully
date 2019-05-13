@@ -15,6 +15,11 @@ function valid_ip()
     return $stat
 }
 
+direcciones=$@
+
+notify-send 'Lanzando Servidores' $direcciones
+
+echo "Script de lanzamiento de servidores"
 
 nArgumentos=$#
 

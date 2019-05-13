@@ -1,5 +1,8 @@
 package clients;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
@@ -35,13 +38,8 @@ public class Gestor {
 		if (compruebaArgumentos(args) == true) {
 			System.out.println("Argumentos correctos, iniciando gestor: ");
 			ubicaciones = generarMapa(args);
-			try{
-				iniciaServicios(ubicaciones);
-			}
-			catch (Exception e) {
-				System.out.println(e);
-			}	
-			
+
+			iniciaServicios(ubicaciones);
 			menu();
 		}
 		else {
@@ -49,9 +47,38 @@ public class Gestor {
 		}
 	}
 	
+	public static void lanzaServidores (ArrayList<String> maquinas) throws IOException {
+		
+		System.out.println("Estos son mis servidores: ");
+		String direcciones = maquinas.toString().replace("[", "").replace("]", "");
+		System.out.println(direcciones);
+		
+		ProcessBuilder processBuilder = new ProcessBuilder();
+		System.out.println("El proceso devuelve: " + processBuilder.command("bash", "-c", "./deploy/downloadAndLaunch.sh", direcciones).start());
+		//ProcessBuilder pb = new ProcessBuilder("deploy/downloadAndLaunch.sh ");
+		//Process p = pb.start();
+		//System.out.println("El procesos devuelve: " + p);
+		//BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
+		//String line = null;
+		//while ((line = reader.readLine()) != null)
+		//{
+		//	System.out.println(line);
+		//}
+	}
+	
 	public static void iniciaServicios (HashMap<Integer, String> ubicaciones){
+		
+		
+		
 		String mensaje;
 		ArrayList<String> maquinas = obtenerElementosUnicos(new ArrayList<String>(ubicaciones.values()));
+		
+		try {
+			lanzaServidores(maquinas);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
 		System.out.println("Inicializando servicios");
 		mensaje = ubicaciones.entrySet().toString();//Esto nos devuelve una cadena asi: [1=192.168.1.2, 2=127.0.0.1, 3=192.168.1.3, 4=127.0.0.1]
