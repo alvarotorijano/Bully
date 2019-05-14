@@ -197,13 +197,16 @@ public class Proceso extends Thread {
 					}
 				}
 			} else {
-				synchronized (this.eleccionAcuerdo) {
-					this.estadoEleccion = estado_eleccion_t.ACUERDO;
-					this.eleccionAcuerdo.notify();
+				if(this.ID > idCoordinador ) {
+					eleccion();
 				}
-				
-				this.coordinador = idCoordinador;
-				//System.out.println("Soy el proceso " + this.ID + " y  mi coordinador es: " + this.coordinador);
+				else {
+					synchronized (this.eleccionAcuerdo) {
+						this.estadoEleccion = estado_eleccion_t.ACUERDO;
+						this.eleccionAcuerdo.notify();
+						this.coordinador = idCoordinador;
+					}
+				}
 			}
 		}
 		
