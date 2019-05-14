@@ -21,9 +21,17 @@ notify-send 'Lanzando Servidores' $direcciones
 
 echo "Script de lanzamiento de servidores"
 
-nArgumentos=$#
-maquinas="$(grep -oE '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' <<< "1 192.168.1.1 2 192.168.1.1 3 192.168.1.2")" | sort -u
-echo ${maquinas[*]}
+# $# te devuelve el numero de argumentos
+
+nArgumentos=$@
+echo "estos son mis argumentos"
+echo $nArgumentos
+
+#linea de argumentos de prueba: 1 192.168.1.1 2 192.168.1.1 3 192.168.1.2
+
+direcciones="$(grep -oE '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' <<< "$@")"  
+maquinas=$(echo "$direcciones"|tr " " "\n"|sort -u|tr "\n" " ")
+echo $maquinas
 
 #for ip in maquinas
 #do
