@@ -62,6 +62,7 @@ public class Gestor {
 			Client client = ClientBuilder.newClient();
 			URI uri = UriBuilder.fromUri("http://" + maquinas.get(i) + ":8080/Bully").build();
 			WebTarget target = client.target(uri);
+			System.out.println("http://" + maquinas.get(i) + ":8080/Bully/rest/servicio/inicliza" );
 			System.out.println(target.path("rest").path("servicio").path("inicializa").queryParam("mapa", mensaje).request(MediaType.TEXT_PLAIN).get(String.class));
 		}
 	}
