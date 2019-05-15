@@ -7,4 +7,4 @@ echo $maquinas
 
 ./downloadAndLaunch.sh $maquinas
 
-java -jar Bully.jar $@
+java -jar ~/Bully/Bully/deploy/Bully.jar $@
