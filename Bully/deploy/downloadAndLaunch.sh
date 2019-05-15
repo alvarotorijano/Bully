@@ -21,37 +21,22 @@ notify-send 'Lanzando Servidores' $direcciones
 
 echo "Script de lanzamiento de servidores"
 
-# $# te devuelve el numero de argumentos
+nArgumentos=$#
 
-nArgumentos=$@
-echo "estos son mis argumentos"
-echo $nArgumentos
-
-#linea de argumentos de prueba: 1 192.168.1.1 2 192.168.1.1 3 192.168.1.2
-
-direcciones="$(grep -oE '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' <<< "$@")"  
-maquinas=$(echo "$direcciones"|tr " " "\n"|sort -u|tr "\n" " ")
-echo $maquinas
-
-#for ip in maquinas
-#do
-#	indice++
-#	echo "parametro: $ip"
-#
-#	if valid_ip $ip; 
-#	then 
-#		ssh root@$ip "
-#			rm -rf Bully;
-#			apt update;
-#			apt install git wget -y;
-#			git clone https://github.com/alvarotorijano/Bully.git;
-#			./Bully/Bully/deploy/Launch.sh
-#		";
-#	else 
-#		echo "Parametro invalido $ip"; 
-#	fi
-#
-#	java -jar 
-#
-#done
-
+for ip in $@
+do
+	echo "parametro: $ip"
+	if valid_ip $ip; 
+	then 
+		ssh root@$ip "
+			rm -rf Bully;
+			apt update;
+			apt install git wget -y;
+			git clone https://github.com/alvarotorijano/Bully.git;
+			./Bully/Bully/deploy/Launch.sh
+		" 
+	else 
+		echo "Parametro invalido $ip"; 
+	fi
+        
+done
