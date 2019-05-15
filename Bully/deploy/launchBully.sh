@@ -5,5 +5,6 @@ direcciones="$(grep -oE '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' <<< "$@
 maquinas=$(echo "$direcciones"|tr " " "\n"|sort -u|tr "\n" " ")
 echo $maquinas
 
-./downloadAndLaunch.sh $maquinas;
-java -jar $@
+./downloadAndLaunch.sh $maquinas
+
+java -jar Bully.jar $@
