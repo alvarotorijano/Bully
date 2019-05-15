@@ -32,6 +32,7 @@ do
 			rm -rf Bully;
 			apt update;
 			apt install git wget -y;
+			rm -rf Bully
 			git clone https://github.com/alvarotorijano/Bully.git;
 			./Bully/Bully/deploy/Launch.sh
 		" 
