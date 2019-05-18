@@ -314,7 +314,8 @@ public class Gestor {
 	private static void addProceso(Scanner input) {
 		
 		System.out.println("Indica la IP de la máquina en la que arrancar el nuevo proceso");
-		String servidor = input.nextLine();
+		Scanner input2 = new Scanner(System.in);
+		String servidor = input2.nextLine();
 		int nextProcess = ubicaciones.size()+1;
 		
 		boolean direccionCorrecta = true;
@@ -333,10 +334,33 @@ public class Gestor {
 		
 		if(direccionCorrecta) {
 			ubicaciones.put(nextProcess, servidor);
-			//Pasarle el nuevo mapa a todos los proceos [metodo rest en servicio con argumentos id y direccion ip y metodo en proceso
 			
+			Iterator iteradorUbicaciones =  ubicaciones.entrySet().iterator();
+			
+			while(iteradorUbicaciones.hasNext()) {
+				
+				Map.Entry entradaUbicaciones = (Map.Entry) iteradorUbicaciones.next();
+				
+				if((Integer) entradaUbicaciones.getKey() != nextProcess) {
+					
+					Client client = ClientBuilder.newClient();
+					String ip =(String) entradaUbicaciones.getValue(); //Esto te devuelve el value de la key i. Si no hay nada, te devuelve NULL
+					URI uri = UriBuilder.fromUri("http://" +  ip + ":8080/Bully").build();
+					WebTarget target = client.target(uri);
+					
+					System.out.println(target.path("rest").path("servicio").path("añadir").queryParam("idReceptor", (Integer) entradaUbicaciones.getKey()).queryParam("idNuevo", nextProcess).queryParam("ipNueva", servidor).request(MediaType.TEXT_PLAIN).get(String.class));
+				}
+			}
+			
+			Client client = ClientBuilder.newClient();
+			String ip =(String) ubicaciones.get(nextProcess); //Esto te devuelve el value de la key i. Si no hay nada, te devuelve NULL
+			URI uri = UriBuilder.fromUri("http://" +  ip + ":8080/Bully").build();
+			WebTarget target = client.target(uri);
+			
+			System.out.println(target.path("rest").path("servicio").path("arrancaNuevo").queryParam("identificador", nextProcess).request(MediaType.TEXT_PLAIN).get(String.class));
 			//Una vez pasados los mapas arrancar el proceso en el servidor correspondiente mediante nuevo metodo rest.
 		}
+		System.out.println();
 		
 		
 	}

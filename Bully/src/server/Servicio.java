@@ -26,7 +26,6 @@ import clients.Proceso;
 public class Servicio {
 	
 	//numero de procesos totales 
-	private static int NUM_PROCESOS = 0;
 	private static HashMap<Integer, Proceso> procesos = new HashMap<Integer, Proceso>();
 	private static HashMap<Integer, String> ubicaciones = new HashMap<>();
 	private static boolean inicializado = false; //Esta variable de momento esta aqui para decir que si ya hemos recibido un mensaje de inicializacion lo desechemos. Mas adente podemos contemplar si vamos a actualizar nuestro mapa de direcciones con lo que hemos recibido aï¿½adiendo o destruyendo procesos o lo que sea.
@@ -221,4 +220,31 @@ public class Servicio {
 		return direcciones;
 	}
 	
+	@GET
+	@Produces(MediaType.TEXT_PLAIN)
+	@Path("añadir")
+	public String añadir(@QueryParam(value = "idReceptor") int idReceptor, @QueryParam(value = "idNuevo") int idNuevo, @QueryParam(value = "ipNueva") String ipNueva) {
+		
+		if(procesos.get(idReceptor)!=null) {
+			if(ubicaciones.get(idNuevo)==null) {
+				ubicaciones.put(idNuevo, ipNueva);
+			}
+			procesos.get(idReceptor).nuevoMapa(ubicaciones);
+		}
+		
+		return ("Añadidio proceso al HashMap");
+		
+	}
+	
+	@GET
+	@Produces(MediaType.TEXT_PLAIN)
+	@Path("arrancaNuevo")
+	public String arrancarNuevo(@QueryParam(value = "identificador") int identificador) {
+		
+		if(procesos.get(identificador) == null && ubicaciones.get(identificador) != null) {
+			procesos.put(identificador, new Proceso(identificador, ubicaciones));
+			procesos.get(identificador).start();
+		}
+		return ("Proceso nuevo arancado");
+	}
 }
