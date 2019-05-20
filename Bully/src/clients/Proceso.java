@@ -14,9 +14,6 @@ import java.util.Map;
 
 public class Proceso extends Thread {
 
-	//Comentario para que me deje subir el commit
-	private static int NUM_PROCESOS = 6;
-
 	private int prueba = 0;
 	public int ID; // ID del proceso
 	private int coordinador = -1; // ID del coordinador
@@ -43,10 +40,6 @@ public class Proceso extends Thread {
 		this.ID = ID;
 		this.estadoProceso = estado_proceso_t.CORRIENDO;
 		System.out.println("Hola, soy el proceso " + this.ID + " y acabo de ser creado");
-	}
-
-	public void updateAddress(HashMap ubicaciones) {
-		this.ubicaciones = ubicaciones;
 	}
 
 	public int getCoordinador() {
@@ -197,13 +190,16 @@ public class Proceso extends Thread {
 					}
 				}
 			} else {
-				synchronized (this.eleccionAcuerdo) {
-					this.estadoEleccion = estado_eleccion_t.ACUERDO;
-					this.eleccionAcuerdo.notify();
+				if(this.ID > idCoordinador ) {
+					eleccion();
 				}
-				
-				this.coordinador = idCoordinador;
-				//System.out.println("Soy el proceso " + this.ID + " y  mi coordinador es: " + this.coordinador);
+				else {
+					synchronized (this.eleccionAcuerdo) {
+						this.estadoEleccion = estado_eleccion_t.ACUERDO;
+						this.eleccionAcuerdo.notify();
+						this.coordinador = idCoordinador;
+					}
+				}
 			}
 		}
 		
@@ -309,6 +305,11 @@ public class Proceso extends Thread {
 		synchronized (this.eleccionPasiva) {
 			this.eleccionPasiva.notify();
 		}
+	}
+	
+	public void nuevoMapa(HashMap<Integer, String> ubicaciones) {
+		
+		this.ubicaciones = ubicaciones;
 	}
 
 }
