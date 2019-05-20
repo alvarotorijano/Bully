@@ -313,7 +313,7 @@ public class Gestor {
 	
 	private static void addProceso(Scanner input) {
 		
-		System.out.println("Indica la IP de la máquina en la que arrancar el nuevo proceso");
+		System.out.println("Indica la IP de la mï¿½quina en la que arrancar el nuevo proceso");
 		Scanner input2 = new Scanner(System.in);
 		String servidor = input2.nextLine();
 		int nextProcess = ubicaciones.size()+1;
@@ -348,7 +348,7 @@ public class Gestor {
 					URI uri = UriBuilder.fromUri("http://" +  ip + ":8080/Bully").build();
 					WebTarget target = client.target(uri);
 					
-					System.out.println(target.path("rest").path("servicio").path("añadir").queryParam("idReceptor", (Integer) entradaUbicaciones.getKey()).queryParam("idNuevo", nextProcess).queryParam("ipNueva", servidor).request(MediaType.TEXT_PLAIN).get(String.class));
+					System.out.println(target.path("rest").path("servicio").path("anadir").queryParam("idReceptor", (Integer) entradaUbicaciones.getKey()).queryParam("idNuevo", nextProcess).queryParam("ipNueva", servidor).request(MediaType.TEXT_PLAIN).get(String.class));
 				}
 			}
 			
@@ -374,7 +374,7 @@ public class Gestor {
 		System.out.println("\n\t1) Mostrar los procesos");
 		System.out.println("\n\t2) Parar un proceso");
 		System.out.println("\n\t3) Arrancar un proceso");
-		System.out.println("\n\t4) Añadir un proceso");
+		System.out.println("\n\t4) Aï¿½adir un proceso");
 		System.out.println("\n\t5) Terminar ejecucion");
 		System.out.println("\n------------------------------");
 	}

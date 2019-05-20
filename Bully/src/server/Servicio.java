@@ -222,8 +222,8 @@ public class Servicio {
 	
 	@GET
 	@Produces(MediaType.TEXT_PLAIN)
-	@Path("añadir")
-	public String añadir(@QueryParam(value = "idReceptor") int idReceptor, @QueryParam(value = "idNuevo") int idNuevo, @QueryParam(value = "ipNueva") String ipNueva) {
+	@Path("anadir")
+	public String anadir(@QueryParam(value = "idReceptor") int idReceptor, @QueryParam(value = "idNuevo") int idNuevo, @QueryParam(value = "ipNueva") String ipNueva) {
 		
 		if(procesos.get(idReceptor)!=null) {
 			if(ubicaciones.get(idNuevo)==null) {
@@ -232,7 +232,7 @@ public class Servicio {
 			procesos.get(idReceptor).nuevoMapa(ubicaciones);
 		}
 		
-		return ("Añadidio proceso al HashMap");
+		return ("Aï¿½adidio proceso al HashMap");
 		
 	}
 	
