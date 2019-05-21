@@ -200,10 +200,6 @@ public class Gestor {
 			}
 		}
 		
-		/// Estas lineas muestran el array de pids y el de direcciones
-		//System.out.println("Estos son mis ids: " + ubicaciones.keySet() );
-		//System.out.println("Estas son mis ips: " + ubicaciones.values() );
-		
 		return ubicaciones;
 	}
 
@@ -305,7 +301,7 @@ public class Gestor {
 			}
 		}
 		
-		if(direccionCorrecta) {
+		if(direccionCorrecta && ubicaciones.containsValue(servidor)) {
 			ubicaciones.put(nextProcess, servidor);
 			
 			Iterator iteradorUbicaciones =  ubicaciones.entrySet().iterator();
@@ -332,6 +328,9 @@ public class Gestor {
 			
 			System.out.println(target.path("rest").path("servicio").path("arrancaNuevo").queryParam("identificador", nextProcess).request(MediaType.TEXT_PLAIN).get(String.class));
 			//Una vez pasados los mapas arrancar el proceso en el servidor correspondiente mediante nuevo metodo rest.
+		}
+		else {
+			System.out.println("Direccion invalida o maquina no disponible: " + servidor);
 		}
 		System.out.println();
 		
