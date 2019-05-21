@@ -158,7 +158,7 @@ public class Gestor {
 		int eleccion = 1;
 		Scanner input = new Scanner(System.in); //Esto estaba dentro del bucle y cada vez que el bucle iteraba se ejecutaba...
 		
-		while(eleccion != 4) {
+		while(eleccion != 5) {
 
 			mostrarMenu();
 			eleccion = input.nextInt();
@@ -177,10 +177,13 @@ public class Gestor {
 				break;
 				
 			case 4:
+				addProceso(input);
+				break;
+			
+			case 5:
 				System.out.println("Saliendo");
 				input.close(); //A�adida esta linea para evitar la advertencia de que nunca cerramos el stream de entrada
 				break;
-			
 			default:
 				System.out.println("El valor introducido debe ser 1, 2, 3 o 4");
 			}
@@ -281,6 +284,60 @@ public class Gestor {
 			System.out.println();
 	}
 	
+	private static void addProceso(Scanner input) {
+		
+		System.out.println("Indica la IP de la m�quina en la que arrancar el nuevo proceso");
+		Scanner input2 = new Scanner(System.in);
+		String servidor = input2.nextLine();
+		int nextProcess = ubicaciones.size()+1;
+		
+		boolean direccionCorrecta = true;
+		if ( servidor.equals("127.0.0.1") || servidor.split("\\.").length != 4) {
+			mensajeDepuracion(String.join("El argumento ", servidor, " esta mal formado"));
+			direccionCorrecta = false;
+		}
+		else {
+			for(int j = 0; j < 4; j++) {
+				if(Integer.parseInt(servidor.split("\\.")[j]) < 0 || Integer.parseInt(servidor.split("\\.")[j]) > 255) {
+					mensajeDepuracion(String.join("El elemento ", servidor.split("\\.")[j], " de la direccion ", servidor, " es invalido") );
+					direccionCorrecta =  false;
+				}
+			}
+		}
+		
+		if(direccionCorrecta) {
+			ubicaciones.put(nextProcess, servidor);
+			
+			Iterator iteradorUbicaciones =  ubicaciones.entrySet().iterator();
+			
+			while(iteradorUbicaciones.hasNext()) {
+				
+				Map.Entry entradaUbicaciones = (Map.Entry) iteradorUbicaciones.next();
+				
+				if((Integer) entradaUbicaciones.getKey() != nextProcess) {
+					
+					Client client = ClientBuilder.newClient();
+					String ip =(String) entradaUbicaciones.getValue(); //Esto te devuelve el value de la key i. Si no hay nada, te devuelve NULL
+					URI uri = UriBuilder.fromUri("http://" +  ip + ":8080/Bully").build();
+					WebTarget target = client.target(uri);
+					
+					System.out.println(target.path("rest").path("servicio").path("anadir").queryParam("idReceptor", (Integer) entradaUbicaciones.getKey()).queryParam("idNuevo", nextProcess).queryParam("ipNueva", servidor).request(MediaType.TEXT_PLAIN).get(String.class));
+				}
+			}
+			
+			Client client = ClientBuilder.newClient();
+			String ip =(String) ubicaciones.get(nextProcess); //Esto te devuelve el value de la key i. Si no hay nada, te devuelve NULL
+			URI uri = UriBuilder.fromUri("http://" +  ip + ":8080/Bully").build();
+			WebTarget target = client.target(uri);
+			
+			System.out.println(target.path("rest").path("servicio").path("arrancaNuevo").queryParam("identificador", nextProcess).request(MediaType.TEXT_PLAIN).get(String.class));
+			//Una vez pasados los mapas arrancar el proceso en el servidor correspondiente mediante nuevo metodo rest.
+		}
+		System.out.println();
+		
+		
+	}
+	
 	//Esta cosa no me gusta porque es grande y no hace nada, pero no he querido cambiarlo y meterlo todo en una linea. 
 	private static void mostrarMenu() {
 		System.out.println("------------------------------");
@@ -290,7 +347,8 @@ public class Gestor {
 		System.out.println("\n\t1) Mostrar los procesos");
 		System.out.println("\n\t2) Parar un proceso");
 		System.out.println("\n\t3) Arrancar un proceso");
-		System.out.println("\n\t4) Terminar ejecucion");
+		System.out.println("\n\t4) A�adir un proceso");
+		System.out.println("\n\t5) Terminar ejecucion");
 		System.out.println("\n------------------------------");
 	}
 	

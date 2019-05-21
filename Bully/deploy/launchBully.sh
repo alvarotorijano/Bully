@@ -3,6 +3,8 @@
 
 direcciones="$(grep -oE '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' <<< "$@")"  
 maquinas=$(echo "$direcciones"|tr " " "\n"|sort -u|tr "\n" " ")
+
+echo "estas son las maquinas que tengo que levantar: "
 echo $maquinas
 
 ./downloadAndLaunch.sh $maquinas
