@@ -29,7 +29,7 @@ do
 	if valid_ip $ip; 
 	then 
 		ssh root@$ip "
-			rm -rf Bully;
+			#rm -rf Bully;
 			apt update;
 			apt install git wget -y;
 			rm -rf Bully
